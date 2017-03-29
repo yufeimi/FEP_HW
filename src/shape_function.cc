@@ -1,4 +1,4 @@
-void shape_function(double (&N)[nint], double xi[nsd], int shape, int nsd, int nen)
+void shape_function(double N[nen], double xi[nsd], int shape, int nsd, int nen)
 {
 	if (shape == 1 && nsd == 2 && nen == 4)
 	{
