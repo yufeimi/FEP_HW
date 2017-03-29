@@ -12,4 +12,4 @@ const int nint = 4;//4 quadrature points
 //material properties
 double rho = 1.0;//density
 double nu = 0.3;//poison's ratio
-double young_mod = 1e8;//Young's modulus
+double young_mod = 1e3;//Young's modulus
