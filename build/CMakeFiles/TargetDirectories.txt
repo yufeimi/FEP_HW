@@ -1,0 +1,3 @@
+/home/feimi/Documents/MyFEMSolver/FEP_HW/build/CMakeFiles/edit_cache.dir
+/home/feimi/Documents/MyFEMSolver/FEP_HW/build/CMakeFiles/rebuild_cache.dir
+/home/feimi/Documents/MyFEMSolver/FEP_HW/build/CMakeFiles/fem.dir
