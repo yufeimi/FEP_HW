@@ -1,5 +1,5 @@
 double mapping(double dxdxi[][nsd], double dNdx[][nsd], double dNdxi[][nsd],
-	double coord_local[][nsd])
+	double coord_local[][nsd], int nen)
 {
 	double j_det;
 	if (nsd == 2){
@@ -8,10 +8,19 @@ double mapping(double dxdxi[][nsd], double dNdx[][nsd], double dNdxi[][nsd],
 		dx(0)/dxi(0)	dx(0)/dxi(1)
 		dx(1)/dxi(0)	dx(1)/dxi(1)
 		*/
+		//initialize
+		for (int isd = 0; isd < nsd; ++isd)
+		{
+			for (int jsd = 0; jsd < nsd; ++jsd)
+			{
+				dxdxi[isd][jsd] = 0;
+			}
+		}
+
+		//calculate
 		for (int isd = 0; isd < nsd; ++isd)
 		{
 			for (int jsd = 0; jsd < nsd; ++jsd){
-				dxdxi[isd][jsd] = 0;
 				for (int ien = 0; ien < nen; ++ien)
 				{
 					dxdxi[isd][jsd] += dNdxi[ien][jsd]*

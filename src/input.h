@@ -15,3 +15,6 @@ double coord[10][2] = {{0,0},{1,0},{0,1},
 				{1,1},{2,1},{2,0},
 				{3,0},{3,1},{4,1},
 				{4,0}};
+
+//load vector:, load face, load vector
+//double load[4][5] = 
