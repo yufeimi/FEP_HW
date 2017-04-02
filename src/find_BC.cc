@@ -2,11 +2,11 @@
 and natural BCs and tage them*/
 #include "pumi.h"
 
-void find_BC(pMeshTag &BCTag_ess, pMeshTag &BCTag_ntr,
-	pMesh &mesh, int geo_dog, int geo_trac, 
-	double trac_value[ndof], pMeshEnt &edge)
+void find_BC(pNumbering reo_node, pMeshTag BCTag_ntr,
+	pMesh mesh, int geo_dog, int geo_trac, 
+	double trac_value[ndof], pMeshEnt edge, int Temp[][ndof])
 {
-	const int fix = 0;
+	//const int fix = 0;
 	//const int x_fix = 1;
 	//const int y_fix = 2;
 
@@ -18,17 +18,19 @@ void find_BC(pMeshTag &BCTag_ess, pMeshTag &BCTag_ntr,
   	{//set essential BC
   		std::vector<pMeshEnt> vertices;
   		pumi_ment_getAdj(edge, 0, vertices);
-  		pumi_ment_setIntTag(vertices[1], BCTag_ess,
-  			&fix);
-  		pumi_ment_setIntTag(vertices[2], BCTag_ess,
-  			&fix);
+  		Temp[pumi_ment_getNumber(vertices[0], reo_node, 0, 0)][0] = 0;
+  		Temp[pumi_ment_getNumber(vertices[0], reo_node, 0, 0)][1] = 0;
+  		Temp[pumi_ment_getNumber(vertices[1], reo_node, 0, 0)][0] = 0;
+  		Temp[pumi_ment_getNumber(vertices[1], reo_node, 0, 0)][1] = 0;
   		if (pumi_shape_getNumNode(
   			pumi_mesh_getShape(mesh), PUMI_EDGE) == 1)
-  			pumi_ment_setIntTag(edge, BCTag_ess, &fix);
+  		{
+  			Temp[pumi_ment_getNumber(edge, reo_node, 0, 0)][0] = 0;
+  			Temp[pumi_ment_getNumber(edge, reo_node, 0, 0)][1] = 0;
+  		}
   	}
   	if (id == geo_trac)
   	{
   		pumi_ment_setIntTag(edge, BCTag_ntr, &traction);
   	}
-
 }

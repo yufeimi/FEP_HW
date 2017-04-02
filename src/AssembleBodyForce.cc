@@ -2,7 +2,7 @@
 #include "pumi.h"
 
 void AssembleBodyForce(pMeshEnt iel, Eigen::VectorXd Fe, 
-	Eigen::MatrixXd &F, int nen, pMesh mesh,
+	Eigen::VectorXd &F, int nen, pMesh mesh,
 	pNumbering reo_node)
 {
 	//for linear element
@@ -16,9 +16,9 @@ void AssembleBodyForce(pMeshEnt iel, Eigen::VectorXd Fe,
 			//find global node number
 			int nn = pumi_ment_getNumber(
 				vertices[ien], reo_node, 0, 0);
-				F(2*nn-2) += Fe(2*ien);
+				F(2*nn) += Fe(2*ien);
 
-				F(2*nn-1) += Fe(2*ien+1);
+				F(2*nn) += Fe(2*ien+1);
 		}
 	}
 }

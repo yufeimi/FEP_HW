@@ -6,7 +6,6 @@
 #include <Eigen/Dense>
 #include "properties.h"
 #include "global_constants.h"
-//#include "declaration_vectors.h"
 #include "input.h" //this includes BC, temporarily
 #include "EleStiff.cc"
 #include "AdjReorder.cc"
@@ -17,6 +16,7 @@
 #include "EleBodyForce.cc"
 #include "AssembleBodyForce.cc"
 #include "AssembleTraction.cc"
+#include "generateEQ.cc"
 
 int main(int argc, char **argv)
 {
@@ -37,25 +37,51 @@ int main(int argc, char **argv)
 
   	printf("Finding BC...");
   	//find the mesh edges on the BC
-  	pMeshTag BCtag_ess = pumi_mesh_createIntTag(mesh,
-  		"essential BC", 3);
+  	//pMeshTag BCtag_ess = pumi_mesh_createIntTag(mesh,
+  	//	"essential BC", 3);
   	//tag 0 for fixed, 1 for x only, 2 for y only;
   	pMeshTag BCtag_ntr = pumi_mesh_createIntTag(mesh,
   		"traction BC", 3);
   	//tag on edges; 3 geo edges at most
   	pMeshIter ie = mesh->begin(1);
 	pMeshEnt edge;
+	//temp array:1 for eq exsit; 0 for no eq
+	int Temp[nnp][ndof];
+
+	//initialize the temp array
+	for (int i = 0; i < nnp; ++i)
+	{
+		for (int j = 0; j < ndof; ++j)
+		{
+			Temp[i][j] = 1;
+		}
+	}
+
 	while((edge = mesh->iterate(ie))){
-		find_BC(BCtag_ess, BCtag_ntr, mesh, geo_dog, 
-  		geo_trac, trac_value, edge);	
+		find_BC(reo_node, BCtag_ntr, mesh, geo_dog, 
+  		geo_trac, trac_value, edge, Temp);	
   	}
 	mesh->end(ie);
   	printf("done.\n");
+  	
+  	int EqID[nnp][ndof];
+  	//generate the EQ matrix to store the eq number per dof
+  	generateEQ(EqID, Temp, reo_node, mesh, nnp);
+  	//In EqID: -1 for no eq, >= 0 is eq number
+
+for (int i = 0; i < nnp; ++i)
+{
+	for (int j = 0; j < ndof; ++j)
+	{
+		printf("%d\n", EqID[i][j]);
+	}
+	
+}
 
 	//assemble
 	//the global stiffness matrix
 	Eigen::SparseMatrix<double> K(ndof*nnp,ndof*nnp);
-	Eigen::MatrixXd F(ndof*nnp,1);
+	Eigen::VectorXd F(ndof*nnp);
 	//initialize force vector
 	for (int i = 0; i < ndof*nnp; ++i)
 	{
@@ -110,6 +136,8 @@ int main(int argc, char **argv)
 		}
 	}
 	mesh->end(edge_iterator);
+
+
 	pumi_mesh_delete(mesh);
 	pumi_finalize();
 	MPI_Finalize();

@@ -23,19 +23,19 @@ void AssembleStiff(pMeshEnt iel, Eigen::MatrixXd Ke,
 				//global node number b
 				int nna = pumi_ment_getNumber(
 					vertices[jen], reo_node, 0, 0);
-				K.coeffRef(2*nna-2, 2*nnb-2) += Ke(2*jen, 2*ien);
-				K.coeffRef(2*nnb-2, 2*nna-2) += Ke(2*jen, 2*ien);
+				K.coeffRef(2*nna, 2*nnb) += Ke(2*jen, 2*ien);
+				K.coeffRef(2*nnb, 2*nna) += Ke(2*jen, 2*ien);
 
 				if (nna < nnb){
-					K.coeffRef(2*nna-1, 2*nnb-2) += Ke(2*jen+1, 2*ien);
-					K.coeffRef(2*nnb-2, 2*nna-1) += Ke(2*jen+1, 2*ien);
+					K.coeffRef(2*nna+1, 2*nnb) += Ke(2*jen+1, 2*ien);
+					K.coeffRef(2*nnb, 2*nna+1) += Ke(2*jen+1, 2*ien);
 				}
 
-				K.coeffRef(2*nna-2, 2*nnb-1) += Ke(2*jen, 2*ien+1);
-				K.coeffRef(2*nnb-1, 2*nna-2) += Ke(2*jen, 2*ien+1);
+				K.coeffRef(2*nna, 2*nnb+1) += Ke(2*jen, 2*ien+1);
+				K.coeffRef(2*nnb+1, 2*nna) += Ke(2*jen, 2*ien+1);
 
-				K.coeffRef(2*nna-1, 2*nnb-1) += Ke(2*jen+1, 2*ien+1);
-				K.coeffRef(2*nnb-1, 2*nna-1) += Ke(2*jen+1, 2*ien+1);
+				K.coeffRef(2*nna+1, 2*nnb+1) += Ke(2*jen+1, 2*ien+1);
+				K.coeffRef(2*nnb+1, 2*nna+1) += Ke(2*jen+1, 2*ien+1);
 			}
 		}
 	}

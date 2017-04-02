@@ -2,7 +2,7 @@
 #include "pumi.h"
 
 void AssembleTraction(pMeshEnt edge, Eigen::VectorXd Fe, 
-	Eigen::MatrixXd &F, int ned, pMesh mesh,
+	Eigen::VectorXd &F, int ned, pMesh mesh,
 	pNumbering reo_node)
 {
 	//for linear element
@@ -16,9 +16,9 @@ void AssembleTraction(pMeshEnt edge, Eigen::VectorXd Fe,
 			//find global node number
 			int nn = pumi_ment_getNumber(
 				vertices[ied], reo_node, 0, 0);
-				F(2*nn-2) += Fe(2*ied);
+				F(2*nn) += Fe(2*ied);
 
-				F(2*nn-1) += Fe(2*ied+1);
+				F(2*nn) += Fe(2*ied+1);
 		}
 	}
 }

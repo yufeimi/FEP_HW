@@ -34,8 +34,8 @@ int AdjReorder(pMesh mesh, pNumbering &reo_node, pNumbering &reo_elem)
   /////////////////////////////////////////
 
   //load vertices and faces first
-  int labelnode = pumi_mesh_getNumEnt(mesh, 0) + 1;
-  int labelface = pumi_mesh_getNumEnt(mesh, 2) + 1;
+  int labelnode = pumi_mesh_getNumEnt(mesh, 0);
+  int labelface = pumi_mesh_getNumEnt(mesh, 2);
   /*SEE whether the mesh is linear or quadratic*/
   //pumi_mesh_setShape(mesh, pumi_shape_getLagrange(2));
   //This is to set lagrangian manually
@@ -53,8 +53,9 @@ int AdjReorder(pMesh mesh, pNumbering &reo_node, pNumbering &reo_elem)
         labelnode++;
     }
   }else printf("This mesh is linear.\n");
-  printf("This mesh has %d nodes.\n", labelnode-1);
-  int nnp = labelnode-1;
+  printf("This mesh has %d nodes.\n", labelnode);
+  int nnp = labelnode;
+
 
   /////////////////////////////////////////
   /////////////Start reordering//////////////
