@@ -12,5 +12,5 @@ const int shape = 1;//1 for linear, 2 for quadratic
 //material properties
 double rho = 1.0;//density
 double nu = 0.3;//poison's ratio
-double young_mod = 1e3;//Young's modulus
-double g = 0;//gravity
+double young_mod = 1.8e3;//Young's modulus
+double g[2] = {10,0};//gravity

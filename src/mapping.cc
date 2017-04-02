@@ -33,6 +33,10 @@ double mapping(double dxdxi[][nsd], double dNdx[][nsd], double dNdxi[][nsd],
 		j_det = (dxdxi[0][0]*dxdxi[1][1] - 
 		dxdxi[0][1]*dxdxi[1][0]);
 
+		if (nen == 2)
+			j_det = sqrt(dxdxi[0][0]*dxdxi[0][0] + 
+				dxdxi[1][0]*dxdxi[1][0]);
+
 		/*calculate the derivative of shape function in
 		physical space*/
 		//dNdxi has dimension of nen*nsd
