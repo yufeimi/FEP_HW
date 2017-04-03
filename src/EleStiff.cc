@@ -108,14 +108,13 @@ void EleStiff(int nen, Eigen::MatrixXd &Ke, pMeshEnt element,
 					D_tilde[1][1]*B2}, {D_tilde[2][2]*B2,
 					D_tilde[2][2]*B1}};
 
-				for (int a = 0; a <= b; ++a)
+				for (int a = 0; a < nen; ++a)
 				{
 					B1 = dNdx[a][0];
 					B2 = dNdx[a][1];
 					Ke(2*a,2*b) += B1*temp[0][0] + B2*temp[2][0];
 					Ke(2*a,2*b+1) += B1*temp[0][1] + B2*temp[2][1];
-					if (a < b)
-						Ke(2*a+1,2*b) += B2*temp[1][0] + B1*temp[2][0];
+					Ke(2*a+1,2*b) += B2*temp[1][0] + B1*temp[2][0];
 					Ke(2*a+1,2*b+1) += B2*temp[1][1] + B1*temp[2][1];
 				}
 			}//end calculate element stiffness matrix

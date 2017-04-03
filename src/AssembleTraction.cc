@@ -3,7 +3,7 @@
 
 void AssembleTraction(pMeshEnt edge, Eigen::VectorXd Fe, 
 	Eigen::VectorXd &F, int ned, pMesh mesh,
-	pNumbering reo_node)
+	pNumbering reo_node, Eigen::MatrixXi EqID)
 {
 	//for linear element
 	if (pumi_shape_getNumNode(
@@ -16,9 +16,11 @@ void AssembleTraction(pMeshEnt edge, Eigen::VectorXd Fe,
 			//find global node number
 			int nn = pumi_ment_getNumber(
 				vertices[ied], reo_node, 0, 0);
-				F(2*nn) += Fe(2*ied);
-
-				F(2*nn) += Fe(2*ied+1);
+			for (int idof = 0; idof < ndof; ++idof)
+			{
+				if (EqID(nn,idof) >= 0)
+					F(EqID(nn,idof)) += Fe(2*ied);
+			}
 		}
 	}
 }

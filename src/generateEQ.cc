@@ -1,6 +1,7 @@
 #include "pumi.h"
+#include <Eigen/Dense>
 
-void generateEQ(int EqID[][ndof], int Temp[][ndof],
+int generateEQ(Eigen::MatrixXi &EqID, int Temp[][ndof],
 pNumbering reo_node, pMesh mesh, int nnp)
 {
 
@@ -9,12 +10,10 @@ pNumbering reo_node, pMesh mesh, int nnp)
 	{
 		for (int j = 0; j < ndof; ++j)
 		{
-			EqID[i][j] = 0;
+			EqID(i,j) = 0;
 		}
 	}
 	
-
-	//need another loop over edges for quadratic
 
 	//now fill into the eq array
 	int eq_number = 0;
@@ -24,12 +23,13 @@ pNumbering reo_node, pMesh mesh, int nnp)
 		{
 			if (Temp[inp][idof] == 1)
 			{
-				EqID[inp][idof] = eq_number;
+				EqID(inp,idof) = eq_number;
 				++eq_number;
 			}else if(Temp[inp][idof] == 0)
 			{
-				EqID[inp][idof] = -1;
+				EqID(inp,idof) = -1;
 			}
 		}
 	}
+	return eq_number;
 }

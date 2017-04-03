@@ -15,7 +15,7 @@ void find_BC(pNumbering reo_node, pMeshTag BCTag_ntr,
   	pGeomEnt geo_edge = pumi_ment_getGeomClas(edge);
   	int id = pumi_gent_getID(geo_edge);
   	if(id == geo_dog)
-  	{//set essential BC
+  	{//set essential BC (both dir fixed)
   		std::vector<pMeshEnt> vertices;
   		pumi_ment_getAdj(edge, 0, vertices);
   		Temp[pumi_ment_getNumber(vertices[0], reo_node, 0, 0)][0] = 0;

@@ -2,7 +2,7 @@
 #include <PCU.h>
 #include <iostream>
 #include <stdio.h>
-#include <Eigen/SparseCore>
+#include <Eigen/Sparse>
 #include <Eigen/Dense>
 #include "properties.h"
 #include "global_constants.h"
@@ -17,6 +17,8 @@
 #include "AssembleBodyForce.cc"
 #include "AssembleTraction.cc"
 #include "generateEQ.cc"
+#include "SolveStiffness.cc"
+#include "Disp_out.cc"
 
 int main(int argc, char **argv)
 {
@@ -37,9 +39,6 @@ int main(int argc, char **argv)
 
   	printf("Finding BC...");
   	//find the mesh edges on the BC
-  	//pMeshTag BCtag_ess = pumi_mesh_createIntTag(mesh,
-  	//	"essential BC", 3);
-  	//tag 0 for fixed, 1 for x only, 2 for y only;
   	pMeshTag BCtag_ntr = pumi_mesh_createIntTag(mesh,
   		"traction BC", 3);
   	//tag on edges; 3 geo edges at most
@@ -64,26 +63,18 @@ int main(int argc, char **argv)
 	mesh->end(ie);
   	printf("done.\n");
   	
-  	int EqID[nnp][ndof];
+  	//This is ID array in Hughes' textbook
+  	Eigen::MatrixXi EqID(nnp,ndof);
   	//generate the EQ matrix to store the eq number per dof
-  	generateEQ(EqID, Temp, reo_node, mesh, nnp);
+  	int eq_number = generateEQ(EqID, Temp, reo_node, mesh, nnp);
   	//In EqID: -1 for no eq, >= 0 is eq number
-
-for (int i = 0; i < nnp; ++i)
-{
-	for (int j = 0; j < ndof; ++j)
-	{
-		printf("%d\n", EqID[i][j]);
-	}
-	
-}
 
 	//assemble
 	//the global stiffness matrix
-	Eigen::SparseMatrix<double> K(ndof*nnp,ndof*nnp);
-	Eigen::VectorXd F(ndof*nnp);
+	Eigen::SparseMatrix<double> K(eq_number,eq_number);
+	Eigen::VectorXd F(eq_number);
 	//initialize force vector
-	for (int i = 0; i < ndof*nnp; ++i)
+	for (int i = 0; i < eq_number; ++i)
 	{
 		F(i) = 0;
 	}
@@ -104,13 +95,13 @@ for (int i = 0; i < nnp; ++i)
 		//get element stiffness matrix
 		EleStiff(nen, Ke, iel, mesh);
 		//assemble it in the global K
-		AssembleStiff(iel, Ke, K, nen, mesh, reo_node);
+		AssembleStiff(iel, Ke, K, nen, mesh, reo_node, EqID);
 
 		//body force contribution to the local force vector
 		Eigen::VectorXd Fe(ndof*nen);
 		EleBodyForce(Fe, iel, mesh, nen);
 		//assemble it in the force vector
-		AssembleBodyForce(iel, Fe, F, nen, mesh, reo_node);
+		AssembleBodyForce(iel, Fe, F, nen, mesh, reo_node, EqID);
 	}
 	mesh->end(ele_iterator);
 	printf("done.\n");
@@ -132,12 +123,26 @@ for (int i = 0; i < nnp; ++i)
 		if (pumi_ment_hasTag(ied, BCtag_ntr))
 		{
 			EleLoad(Fe, ied, mesh, trac_value, ned);
-			AssembleTraction(ied, Fe, F, ned, mesh, reo_node);
+			AssembleTraction(ied, Fe, F, ned, mesh, reo_node, EqID);
 		}
 	}
 	mesh->end(edge_iterator);
 
+	K.makeCompressed();//compress the stiffness matrix
+	//solve the matrix
 
+	printf("Solving...\n");
+	Eigen::VectorXd d(eq_number);
+	SolveStiffness(K, F, d);
+	printf("Get displacement field\n");
+
+	//fill in the displacement into the field;
+	pField Disp = pumi_field_create(mesh, "displacement", 1, 
+		PUMI_VECTOR, pumi_mesh_getShape(mesh));
+	Disp_out(Disp, mesh, reo_node, EqID, d);
+
+
+	pumi_mesh_write(mesh, "output", "vtk");
 	pumi_mesh_delete(mesh);
 	pumi_finalize();
 	MPI_Finalize();
