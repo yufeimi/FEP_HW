@@ -1,5 +1,5 @@
 double mapping(double dxdxi[][nsd], double dNdx[][nsd], double dNdxi[][nsd],
-	double coord_local[][nsd], int nen)
+	double coord_local[][nsd], int nen, int dim)
 {
 	double j_det;
 	if (nsd == 2){
@@ -33,9 +33,10 @@ double mapping(double dxdxi[][nsd], double dNdx[][nsd], double dNdxi[][nsd],
 		j_det = (dxdxi[0][0]*dxdxi[1][1] - 
 		dxdxi[0][1]*dxdxi[1][0]);
 
-		if (nen == 2)
+		if (dim == 1)
 			j_det = sqrt(dxdxi[0][0]*dxdxi[0][0] + 
 				dxdxi[1][0]*dxdxi[1][0]);
+		std::cout<<"jacobian"<<j_det<<std::endl;
 
 		/*calculate the derivative of shape function in
 		physical space*/

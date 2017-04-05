@@ -9,7 +9,10 @@
 void EleLoad(Eigen::VectorXd &Fe, pMeshEnt edge, 
 	pMesh mesh, double trac_value[], int ned)
 {
-	int nint = 2;//because integration on load 
+	int nint = 2;
+	if(pumi_shape_hasNode(pumi_mesh_getShape(mesh),PUMI_EDGE))
+		nint = 3;
+	//because integration on load 
 	//is one dimension off the mesh dimension
 
 	//initialize the force vector
@@ -42,6 +45,8 @@ void EleLoad(Eigen::VectorXd &Fe, pMeshEnt edge,
 			}
 		}
 	}//end for linear mesh
+
+
 	if (pumi_shape_getNumNode(s, PUMI_EDGE) == 1)
 	{//quadratic mesh
 		std::vector<pMeshEnt> vertices;
@@ -56,7 +61,7 @@ void EleLoad(Eigen::VectorXd &Fe, pMeshEnt edge,
 			}
 		}
 		double x[nsd];
-		pumi_node_getCoord(edge, 1, x);
+		pumi_node_getCoord(edge, 0, x);
 		for (int isd = 0; isd < nsd; ++isd)
 			coord_local[ned-1][isd] = x[isd];
 	}//end quadratic mesh
@@ -72,21 +77,22 @@ void EleLoad(Eigen::VectorXd &Fe, pMeshEnt edge,
 		}
 		//assign the shape functions
 		double N[ned];
-		shape_function(N, xi, 1);
+		shape_function(N, xi, 1, ned);
 		//and its derivatives
 		double dNdxi[ned][nsd];
-		shape_function_dr(dNdxi, xi, 1);
+		shape_function_dr(dNdxi, xi, 1, ned);
 		
 		//process the mapping
 		double dxdxi[nsd][nsd];
 		double dNdx[ned][nsd];
 		//This function returns the jacobian determinant
 		//and update the dxdxi and dNdx
-		double j_det = mapping(dxdxi, dNdx, dNdxi, coord_local, ned);
+		double j_det = mapping(dxdxi, dNdx, dNdxi, coord_local, ned, 1);
 		for (int ied = 0; ied < ned; ++ied)
 		{
 			Fe(2*ied) += trac_value[0]*N[ied]*j_det*weights[iint];
 			Fe(2*ied+1) += trac_value[1]*N[ied]*j_det*weights[iint];
 		}
+		std::cout<<"FE"<<Fe<<std::endl;
 	}//end of loop over quadrature points
 }

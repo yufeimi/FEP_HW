@@ -25,19 +25,27 @@ pMeshEnt getStart(pMesh mesh)
 }
 
 
-int AdjReorder(pMesh &mesh, pNumbering &reo_node, pNumbering &reo_elem)
+int main(int argc, char** argv)
 {
-  
+  if (argc != 3) {
+    printf("usage: %s reorder_?.dmg reorder_?.smb\n", argv[0]);
+    return 0;
+  }
+  MPI_Init(&argc,&argv);
+  pumi_start();
+  pGeom geom = pumi_geom_load(argv[1], "mesh");
+  pMesh mesh = pumi_mesh_load(geom, argv[2], 1);
+
   /////////////////////////////////////////
   ////Firstly get the number of nodes//////
   //////Only for linear and quadratic//////
   /////////////////////////////////////////
 
   //load vertices and faces first
-  int labelnode = pumi_mesh_getNumEnt(mesh, 0);
-  int labelface = pumi_mesh_getNumEnt(mesh, 2);
+  int labelnode = pumi_mesh_getNumEnt(mesh, 0) + 1;
+  int labelface = pumi_mesh_getNumEnt(mesh, 2) + 1;
   /*SEE whether the mesh is linear or quadratic*/
-  //pumi_mesh_setShape(mesh, pumi_shape_getLagrange(2));
+  pumi_mesh_setShape(mesh, pumi_shape_getLagrange(2));
   //This is to set lagrangian manually
   pShape s = pumi_mesh_getShape(mesh);
   if (pumi_shape_getNumNode(s, PUMI_EDGE) == 1)
@@ -52,15 +60,17 @@ int AdjReorder(pMesh &mesh, pNumbering &reo_node, pNumbering &reo_elem)
         element_query) == PUMI_QUAD)
         labelnode++;
     }
-    mesh->end(ite);
   }else printf("This mesh is linear.\n");
-  printf("This mesh has %d nodes.\n", labelnode);
-  int nnp = labelnode;
-
+  printf("This mesh has %d nodes.\n", labelnode-1);
 
   /////////////////////////////////////////
   /////////////Start reordering//////////////
   /////////////////////////////////////////
+  //create numbering for nodes and elements
+  pNumbering reo_node = pumi_numbering_createOwnedNode(
+    mesh, "Reorder_nodes", s);
+  pNumbering reo_elem = pumi_numbering_createOwned(
+    mesh, "Reorder_elements", 2);
   const int labeled = 1;//if labeled then tag 1
   const int queued = 0;//if queued then tag 0
   const int labeledFace = 1;//if face labeled then tag 1
@@ -76,6 +86,8 @@ int AdjReorder(pMesh &mesh, pNumbering &reo_node, pNumbering &reo_elem)
   nodeQueue.push_back(e);
   pumi_ment_setIntTag(e, Isqueued, &queued);
   //when enqueue a mesh entity tag it as queued.
+  FILE *node_numbering = fopen("./number/Numbering.txt", "w");
+  fprintf(node_numbering, "Node\t X\t Y\t Z\n");
   int vertCount = 0;
   int edgeCount = 0;
   int elemCount = 0;//Counters for nodes on verts, edges and elements
@@ -83,34 +95,37 @@ int AdjReorder(pMesh &mesh, pNumbering &reo_node, pNumbering &reo_elem)
     e = nodeQueue.front();
     pumi_ment_deleteTag(e, Isqueued);
     nodeQueue.pop_front();
+    apf::Vector3 node;
+    mesh->getPoint(e, 0, node);
     if(pumi_ment_hasTag(e, IsLabeled) == false){
       //if node not labeled then label it//
       labelnode = labelnode - 1;
       pumi_ment_setIntTag(e, IsLabeled, &labeled);
+      fprintf(node_numbering, 
+      "%d\t %5.2f\t %5.2f\t %5.2f\n", labelnode, node[0],
+      node[1], node[2]);
       if(pumi_ment_getDim(e) == 0){
         pumi_ment_setNumber(e, reo_node, 0, 0, labelnode);
         vertCount++;
-        //printf("Labelling node %d on %d vertex\n", labelnode,
-        //  vertCount);
+        printf("Labelling node %d on %d vertex\n", labelnode,
+          vertCount);
       }
       else if(pumi_ment_getDim(e) == 1){
         pumi_ment_setNumber(e, reo_node, 0, 0, labelnode);
         edgeCount++;
-        //printf("Labelling node %d on %d edge\n", labelnode,
-        //  edgeCount);
+        printf("Labelling node %d on %d edge\n", labelnode,
+          edgeCount);
       }
       else if(pumi_ment_getDim(e) == 2){
         pumi_ment_setNumber(e, reo_node, 0, 0, labelnode);
         elemCount++;
-        //printf("Labelling node %d on %d element\n", labelnode,
-        //  elemCount);
+        printf("Labelling node %d on %d element\n", labelnode,
+          elemCount);
       }
     }
-
     /////////////////////////////////////////
     ////Find unnuumbered nodes on adjacent mesh ents
     ////////////////////////////////////////
-
     if(pumi_ment_getDim(e) == 0){
       std::vector<pMeshEnt> adj_edges;
       pMeshEnt vertex = e;
@@ -128,7 +143,7 @@ int AdjReorder(pMesh &mesh, pNumbering &reo_node, pNumbering &reo_elem)
           {
             //label the face
             labelface = labelface - 1;
-            //printf("Labelling face number %d\n", labelface);
+            printf("Labelling face number %d\n", labelface);
             pumi_ment_setIntTag(face, FaceLabeled, &labeledFace);
             pumi_ment_setNumber(face, reo_elem, 0, 0, labelface);
             int topo = pumi_ment_getTopo(face);
@@ -137,7 +152,7 @@ int AdjReorder(pMesh &mesh, pNumbering &reo_node, pNumbering &reo_elem)
               face, Isqueued) == false){
               nodeQueue.push_back(face);
               pumi_ment_setIntTag(face, Isqueued, &queued);
-              //printf("Enqueueing a face..\n");
+              printf("Enqueueing a face..\n");
             }
           }
         }//finish the loop over adj faces
@@ -150,8 +165,11 @@ int AdjReorder(pMesh &mesh, pNumbering &reo_node, pNumbering &reo_elem)
           {//if other vertex is labeled or in queue and edge node not labeled
             labelnode = labelnode - 1;
             edgeCount++;
-            //printf("Labelling node number %d on %d edge\n", labelnode,
-            //  edgeCount);
+            mesh->getPoint(edge, 0, node);
+            fprintf(node_numbering, "%d\t %5.2f\t %5.2f\t %5.2f\n", 
+              labelnode, node[0], node[1], node[2]);
+            printf("Labelling node number %d on %d edge\n", labelnode,
+              edgeCount);
             pumi_ment_setNumber(edge, reo_node, 0, 0, labelnode);
             pumi_ment_setIntTag(edge, IsLabeled, &labeled);
           }
@@ -174,5 +192,9 @@ int AdjReorder(pMesh &mesh, pNumbering &reo_node, pNumbering &reo_elem)
       otherVtxQueue.clear();
     }
   }//finish the biggest loop
-  return nnp;
+  fclose(node_numbering);
+  pumi_mesh_write(mesh,"number","vtk");
+  pumi_mesh_delete(mesh);
+  pumi_finalize();
+  MPI_Finalize();
 }

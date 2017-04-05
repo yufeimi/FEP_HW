@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
-#include "properties.h"
 #include "global_constants.h"
 #include "input.h" //this includes BC, temporarily
 #include "EleStiff.cc"
@@ -63,7 +62,7 @@ int main(int argc, char **argv)
 	mesh->end(ie);
   	printf("done.\n");
   	
-  	//This is ID array in Hughes' textbook
+  	//This is the ID array in Hughes' textbook
   	Eigen::MatrixXi EqID(nnp,ndof);
   	//generate the EQ matrix to store the eq number per dof
   	int eq_number = generateEQ(EqID, Temp, reo_node, mesh, nnp);
@@ -91,6 +90,7 @@ int main(int argc, char **argv)
 		int edge_node = pumi_shape_getNumNode(s, PUMI_EDGE);
 		int nen = element_node_number(edge_node, 
 			pumi_ment_getTopo(iel));
+
 		Eigen::MatrixXd Ke(ndof*nen, ndof*nen);
 		//get element stiffness matrix
 		EleStiff(nen, Ke, iel, mesh);

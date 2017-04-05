@@ -14,6 +14,7 @@ void find_BC(pNumbering reo_node, pMeshTag BCTag_ntr,
 
   	pGeomEnt geo_edge = pumi_ment_getGeomClas(edge);
   	int id = pumi_gent_getID(geo_edge);
+    //std::cout << "ID:" << id <<std::endl;
   	if(id == geo_dog)
   	{//set essential BC (both dir fixed)
   		std::vector<pMeshEnt> vertices;
@@ -24,7 +25,7 @@ void find_BC(pNumbering reo_node, pMeshTag BCTag_ntr,
   		Temp[pumi_ment_getNumber(vertices[1], reo_node, 0, 0)][1] = 0;
   		if (pumi_shape_getNumNode(
   			pumi_mesh_getShape(mesh), PUMI_EDGE) == 1)
-  		{
+  		{//if there is node on the edge
   			Temp[pumi_ment_getNumber(edge, reo_node, 0, 0)][0] = 0;
   			Temp[pumi_ment_getNumber(edge, reo_node, 0, 0)][1] = 0;
   		}
