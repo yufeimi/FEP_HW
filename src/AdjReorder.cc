@@ -90,6 +90,11 @@ int AdjReorder(pMesh &mesh, pNumbering &reo_node, pNumbering &reo_elem)
       if(pumi_ment_getDim(e) == 0){
         pumi_ment_setNumber(e, reo_node, 0, 0, labelnode);
         vertCount++;
+        if (labelnode == 0){
+          double x[3];
+          pumi_node_getCoord(e, 0, x);
+          printf("%5.2f %5.2f %5.2f\n", x[0],x[1],x[2]);
+        }
         //printf("Labelling node %d on %d vertex\n", labelnode,
         //  vertCount);
       }

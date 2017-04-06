@@ -127,7 +127,6 @@ int main(int argc, char **argv)
 		}
 	}
 	mesh->end(edge_iterator);
-	std::cout<<F<<std::endl;
 
 	K.makeCompressed();//compress the stiffness matrix
 	//solve the matrix
