@@ -23,19 +23,19 @@ void qdpt_coord(double xi_list[][nsd], int nint_local, int nsd_local)
 	}
 	if (nsd_local == 2 && nint_local == 1)
 	{//for tri
-		xi_list[0][0] = 0.3333333333;
-		xi_list[0][1] = 0.3333333333;
+		xi_list[0][0] = 0.33333333333;
+		xi_list[0][1] = 0.33333333333;
 	}
 	if (nsd_local == 2 && nint_local == 3)
 	{//quadratic tri
-		xi_list[0][0] = 0;
-		xi_list[0][1] = 0.5;
+		xi_list[0][0] = 0.1666666667;
+		xi_list[0][1] = 0.1666666667;
 
-		xi_list[1][0] = 0.5;
-		xi_list[1][1] = 0;
+		xi_list[1][0] = 0.6666666667;
+		xi_list[1][1] = 0.1666666667;
 		
-		xi_list[2][0] = 0.5;
-		xi_list[2][1] = 0.5;
+		xi_list[2][0] = 0.1666666667;
+		xi_list[2][1] = 0.6666666667;
 	}
 	if (nsd_local == 2 && nint_local == 4)
 	{//for quad

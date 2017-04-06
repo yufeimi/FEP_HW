@@ -19,7 +19,7 @@ void AssembleTraction(pMeshEnt edge, Eigen::VectorXd Fe,
 			for (int idof = 0; idof < ndof; ++idof)
 			{
 				if (EqID(nn,idof) >= 0)
-					F(EqID(nn,idof)) += Fe(2*ied);
+					F(EqID(nn,idof)) += Fe(2*ied+idof);
 			}
 		}
 	}
@@ -39,7 +39,7 @@ void AssembleTraction(pMeshEnt edge, Eigen::VectorXd Fe,
 			for (int idof = 0; idof < ndof; ++idof)
 			{
 				if (EqID(nn,idof) >= 0)
-					F(EqID(nn,idof)) += Fe(2*ied);
+					F(EqID(nn,idof)) += Fe(2*ied+idof);
 			}
 		}
 	}

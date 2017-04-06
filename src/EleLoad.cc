@@ -90,9 +90,8 @@ void EleLoad(Eigen::VectorXd &Fe, pMeshEnt edge,
 		double j_det = mapping(dxdxi, dNdx, dNdxi, coord_local, ned, 1);
 		for (int ied = 0; ied < ned; ++ied)
 		{
-			Fe(2*ied) += trac_value[0]*N[ied]*j_det*weights[iint];
-			Fe(2*ied+1) += trac_value[1]*N[ied]*j_det*weights[iint];
+			Fe(2*ied) += -trac_value[0]*N[ied]*j_det*weights[iint];
+			Fe(2*ied+1) += -trac_value[1]*N[ied]*j_det*weights[iint];
 		}
-		std::cout<<"FE"<<Fe<<std::endl;
 	}//end of loop over quadrature points
 }

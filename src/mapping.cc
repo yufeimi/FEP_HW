@@ -36,7 +36,6 @@ double mapping(double dxdxi[][nsd], double dNdx[][nsd], double dNdxi[][nsd],
 		if (dim == 1)
 			j_det = sqrt(dxdxi[0][0]*dxdxi[0][0] + 
 				dxdxi[1][0]*dxdxi[1][0]);
-		std::cout<<"jacobian"<<j_det<<std::endl;
 
 		/*calculate the derivative of shape function in
 		physical space*/
